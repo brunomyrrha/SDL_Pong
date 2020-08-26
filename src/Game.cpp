@@ -1,13 +1,16 @@
 #include "./headers/Game.h"
 
 Actor player, enemy, ball;
-Control_State player_state, enemy_state;
+Control_State player_state, enemy_state, ball_state[2];
 
 
 Game::Game() {
     game_is_running = Initialize_SDL();
     last_frame_time = 0;
     player_state = STOP;
+    enemy_state = UP;
+    ball_state[BALL_PAD_HORIZONTAL] = LEFT;
+    ball_state[BALL_PAD_VERTICAL] = UP;
     Setup_Ball();
     Setup_Player();
     Setup_Enemy();
@@ -46,6 +49,7 @@ void Game::Input() {
     Process_Enemy_Input();
     Process_Player_Input();
     Process_UI_Input();
+    Process_Ball_Movement();
 }
 
 void Game::Process_Player_Input() {
@@ -61,6 +65,35 @@ void Game::Process_Enemy_Input() {
         enemy_state = DOWN;
     } else if (enemy.pos_y >= WINDOW_HEIGHT - enemy.height) {
         enemy_state = UP;
+    }
+}
+
+void Game::Process_Ball_Movement() {
+    if (ball.pos_y < 0) {
+        ball_state[BALL_PAD_VERTICAL] = DOWN;
+    }
+    if (ball.pos_y > (WINDOW_HEIGHT - ball.height)) {
+        ball_state[BALL_PAD_VERTICAL] = UP;
+    }
+    if (ball.pos_x < player.width) {
+        if (ball.pos_y > player.pos_y && ball.pos_y < (player.pos_y + player.height)) {
+            ball_state[BALL_PAD_HORIZONTAL] = RIGHT;
+            std::cout<<"HIT PLAYER"<<std::endl;
+        }
+    }
+    if (ball.pos_x < 0) {
+        ball_state[BALL_PAD_HORIZONTAL] = RIGHT;
+        std::cout<<"ENEMY SCORE"<<std::endl;
+    }
+    if (ball.pos_x > (WINDOW_WIDTH - ball.width - enemy.width)) {
+        if (ball.pos_y > enemy.pos_y && ball.pos_y < (enemy.pos_y + enemy.height)) {
+            ball_state[BALL_PAD_HORIZONTAL] = LEFT;
+            std::cout<<"HIT ENEMY"<<std::endl;
+        }
+    }
+    if (ball.pos_x > (WINDOW_WIDTH - ball.width)) {
+        ball_state[BALL_PAD_HORIZONTAL] = LEFT;
+        std::cout<<"PLAYER SCORE"<<std::endl;
     }
 }
 
@@ -83,12 +116,22 @@ void Game::Update() {
     switch(player_state) {
         case UP: player.pos_y -= PAD_MOVEMENT_CONSTANT * delta_time; break;
         case DOWN: player.pos_y += PAD_MOVEMENT_CONSTANT * delta_time; break;
-        case STOP: break;
+        default: break;
     }
     switch(enemy_state) {
         case UP: enemy.pos_y -= PAD_MOVEMENT_CONSTANT * delta_time; break;
         case DOWN: enemy.pos_y += PAD_MOVEMENT_CONSTANT * delta_time; break;
-        case STOP: enemy_state = UP; break;
+        default: break;
+    }
+    switch(ball_state[BALL_PAD_VERTICAL]) {
+        case UP: ball.pos_y -= BALL_MOVEMENT_CONSTANT * delta_time; break;
+        case DOWN: ball.pos_y += BALL_MOVEMENT_CONSTANT * delta_time; break; 
+        default: break;
+    }
+    switch(ball_state[BALL_PAD_HORIZONTAL]) {
+        case LEFT: ball.pos_x -= BALL_MOVEMENT_CONSTANT * delta_time; break;
+        case RIGHT: ball.pos_x += BALL_MOVEMENT_CONSTANT * delta_time; break;
+        default: break;
     }
 }
 
@@ -136,7 +179,7 @@ void Game::Draw_Ball() {
 
 void Game::Setup_Player() {
     player.pos_x = 0;
-    player.pos_y = (WINDOW_HEIGHT / 2) - (PLAYER_HEIGHT / 2);
+    player.pos_y = int((WINDOW_HEIGHT / 2) - (PLAYER_HEIGHT / 2));
     player.height = PLAYER_HEIGHT;
     player.width = PLAYER_WIDTH;
 }

@@ -1,3 +1,3 @@
 enum Control_State {
-    UP, DOWN, STOP
+    UP, DOWN, LEFT, RIGHT, STOP
 };

@@ -21,6 +21,7 @@ private:
     bool Initialize_SDL();
     void Clear();
     void Sync_Frame_Rate();
+    void Process_Ball_Movement();
     void Setup_Ball();
     void Draw_Ball();
     void Setup_Player();
