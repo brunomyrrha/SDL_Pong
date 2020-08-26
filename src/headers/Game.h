@@ -24,7 +24,11 @@ private:
     void Setup_Ball();
     void Draw_Ball();
     void Setup_Player();
+    void Draw_Player();
     void Setup_Enemy();
-    void Process_Player_Control();
+    void Draw_Enemy();
+    void Process_Player_Input();
+    void Process_Enemy_Input();
+    void Process_UI_Input();
 
 };

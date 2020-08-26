@@ -1,7 +1,7 @@
 #include "./headers/Game.h"
 
 Actor player, enemy, ball;
-Control_State player_state;
+Control_State player_state, enemy_state;
 
 
 Game::Game() {
@@ -43,40 +43,60 @@ bool Game::Initialize_SDL() {
 }
 
 void Game::Input() {
-    Process_Player_Control();
-    SDL_Event event;
-    SDL_PollEvent(&event);
-    switch(event.type) {
-        case SDL_QUIT:
-            game_is_running = false;
-            break;
-        case SDL_KEYDOWN:
-            if(event.key.keysym.sym == SDLK_ESCAPE) {
-                game_is_running = false;
-            }    
-    }
+    Process_Enemy_Input();
+    Process_Player_Input();
+    Process_UI_Input();
 }
 
-void Game::Process_Player_Control() {
+void Game::Process_Player_Input() {
     player_state = STOP;
     SDL_PumpEvents();
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    if(keystate[SDL_SCANCODE_UP]) { player_state = UP; };
-    if(keystate[SDL_SCANCODE_DOWN]) { player_state = DOWN; };
+    if(keystate[SDL_SCANCODE_UP] && player.pos_y > 0 ) { player_state = UP; };
+    if(keystate[SDL_SCANCODE_DOWN] && player.pos_y <= WINDOW_HEIGHT - player.height) { player_state = DOWN; };
+}
+
+void Game::Process_Enemy_Input() {   
+    if (enemy.pos_y <= 0) {
+        enemy_state = DOWN;
+    } else if (enemy.pos_y >= WINDOW_HEIGHT - enemy.height) {
+        enemy_state = UP;
+    }
+}
+
+void Game::Process_UI_Input() {
+    SDL_Event event;
+        SDL_PollEvent(&event);
+        switch(event.type) {
+            case SDL_QUIT:
+                game_is_running = false;
+                break;
+            case SDL_KEYDOWN:
+                if(event.key.keysym.sym == SDLK_ESCAPE) {
+                    game_is_running = false;
+                }    
+        }
 }
 
 void Game::Update() {
     Sync_Frame_Rate();
     switch(player_state) {
-        case UP: ball.pos_y -= 100 * delta_time; break;
-        case DOWN: ball.pos_y += 100 * delta_time; break;
+        case UP: player.pos_y -= PAD_MOVEMENT_CONSTANT * delta_time; break;
+        case DOWN: player.pos_y += PAD_MOVEMENT_CONSTANT * delta_time; break;
         case STOP: break;
+    }
+    switch(enemy_state) {
+        case UP: enemy.pos_y -= PAD_MOVEMENT_CONSTANT * delta_time; break;
+        case DOWN: enemy.pos_y += PAD_MOVEMENT_CONSTANT * delta_time; break;
+        case STOP: enemy_state = UP; break;
     }
 }
 
 void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    Draw_Player();
+    Draw_Enemy();
     Draw_Ball();
     SDL_RenderPresent(renderer);
 }
@@ -115,9 +135,37 @@ void Game::Draw_Ball() {
 }
 
 void Game::Setup_Player() {
+    player.pos_x = 0;
+    player.pos_y = (WINDOW_HEIGHT / 2) - (PLAYER_HEIGHT / 2);
+    player.height = PLAYER_HEIGHT;
+    player.width = PLAYER_WIDTH;
+}
 
+void Game::Draw_Player() {
+    SDL_Rect player_rect {
+        (int)player.pos_x,
+        (int) player.pos_y,
+        (int)player.width,
+        (int)player.height
+    };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &player_rect);
 }
 
 void Game::Setup_Enemy() {
+    enemy.pos_x = WINDOW_WIDTH - ENEMY_WIDTH;
+    enemy.pos_y = (WINDOW_HEIGHT / 2) - (ENEMY_HEIGHT / 2);
+    enemy.width = ENEMY_WIDTH;
+    enemy.height = ENEMY_HEIGHT;
+}
 
+void Game::Draw_Enemy() {
+    SDL_Rect enemy_rect {
+        (int)enemy.pos_x,
+        (int)enemy.pos_y,
+        (int)enemy.width,
+        (int)enemy.height        
+    };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &enemy_rect);
 }
