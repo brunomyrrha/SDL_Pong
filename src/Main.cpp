@@ -8,5 +8,6 @@ int main()
         engine->UpddateStates();
         engine->RenderFrames();
     }
-    return 0;
+    engine->~Engine();
+    return EXIT_SUCCESS;
 }

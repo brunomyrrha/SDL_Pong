@@ -1,15 +1,8 @@
 #include "headers/Libs.h"
 
-// MARK: - Variables declaration
-
-SDL_Renderer* renderer;
-SDL_Window *window;
-int lastTimeToFrame = 0;
-int deltaTime = 0;
-
 // MARK: - Internal methods
 
-bool InitSDL()
+bool Engine::InitSDL()
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -22,7 +15,7 @@ bool InitSDL()
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
         WINDOW_HEIGHT,
-        SDL_WINDOW_RESIZABLE
+        0
     );
     if(!window)
     {
@@ -38,7 +31,7 @@ bool InitSDL()
     return true;
 }
 
-void SyncFrameRate()
+void Engine::SyncFrameRate()
 {
     int waitTime = FRAME_TARGET_TIME - (SDL_GetTicks() - lastTimeToFrame);
     if (waitTime > 0 && waitTime <= FRAME_TARGET_TIME)
@@ -55,6 +48,7 @@ Engine::Engine()
 {
     bIsRunning = InitSDL();
     lastTimeToFrame = 0;
+    deltaTime = 0;
 }
 
 Engine::~Engine()
@@ -66,7 +60,18 @@ Engine::~Engine()
 
 void Engine::ProcessInput()
 {
-    
+    SDL_Event e;
+    while (SDL_PollEvent(&e)){
+        if (e.type == SDL_QUIT){
+            bIsRunning = false;
+        }
+        if (e.type == SDL_KEYDOWN){
+            bIsRunning = false;
+        }
+        if (e.type == SDL_MOUSEBUTTONDOWN){
+            bIsRunning = false;
+        }
+    }
 }
 
 void Engine::UpddateStates()
@@ -76,9 +81,10 @@ void Engine::UpddateStates()
 
 void Engine::RenderFrames()
 {
+    Ball b = Ball(renderer);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
+    b.Render();
     SDL_RenderPresent(renderer);
 }
 
