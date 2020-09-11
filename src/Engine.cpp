@@ -1,7 +1,5 @@
 #include "headers/Libs.h"
 
-// MARK: - Internal methods
-
 bool Engine::InitSDL()
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -42,8 +40,6 @@ void Engine::SyncFrameRate()
     lastTimeToFrame = SDL_GetTicks();
 };
 
-// MARK: - Class methods
-
 Engine::Engine()
 {
     bIsRunning = InitSDL();
@@ -60,18 +56,13 @@ Engine::~Engine()
 
 void Engine::ProcessInput()
 {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)){
-        if (e.type == SDL_QUIT){
-            bIsRunning = false;
-        }
-        if (e.type == SDL_KEYDOWN){
-            bIsRunning = false;
-        }
-        if (e.type == SDL_MOUSEBUTTONDOWN){
-            bIsRunning = false;
-        }
+    SDL_Event event;
+    Controller control = Controller();
+    while(SDL_PollEvent(&event))
+    {
+        control.QuitIfNeeded(event, bIsRunning);
     }
+    control.MovePlayerPaddle();
 }
 
 void Engine::UpddateStates()

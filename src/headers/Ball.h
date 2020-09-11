@@ -5,7 +5,6 @@ class Ball
 {
 public:
     Ball(SDL_Renderer *renderer);
-    ~Ball();
     void Render();
 private:
     Actor ball;

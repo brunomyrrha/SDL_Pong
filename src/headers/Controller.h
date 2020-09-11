@@ -1,9 +1,8 @@
 class Controller {
 public:
-    Controller();
-    ~Controller();
-    void UI();
-    void Paddle();
+    void QuitIfNeeded(SDL_Event& event, bool& bIsRunning);
+    void MovePlayerPaddle();
 private:
-
+    void MovePlayerUp();
+    void MovePlayerDown();
 };
