@@ -5,7 +5,7 @@ int main()
     Game* g = new Game();
     while(g->IsRunning()) {
         g->ProcessInput();
-        g->UpddateStates();
+        g->UpdateStates();
         g->RenderFrames();
     }
     g->~Game();

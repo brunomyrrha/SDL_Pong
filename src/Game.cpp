@@ -1,5 +1,4 @@
 #include "headers/Game.h"
-#include "headers/Controller.h"
 
 bool Game::InitSDL()
 {
@@ -47,6 +46,7 @@ Game::Game()
     lastTimeToFrame = 0;
     deltaTime = 0;
     InitActors();
+    InitAI();
 }
 
 Game::~Game()
@@ -64,11 +64,16 @@ void Game::ProcessInput()
     {
         control.QuitIfNeeded(event, bIsRunning);
     }
+    control.MoveActor(player);
 }
 
-void Game::UpddateStates()
+void Game::UpdateStates()
 {
     SyncFrameRate();
+    if(ball.state[MOVEMENT_HORIZONTAL] == LEFT) ball.posX = ball.posX - BALL_MOVEMENT_CONSTANT * deltaTime;
+    if(ball.state[MOVEMENT_HORIZONTAL] == RIGHT) ball.posX = ball.posX + BALL_MOVEMENT_CONSTANT * deltaTime;
+    if(ball.state[MOVEMENT_VERTICAL] == UP) ball.posY = ball.posY - BALL_MOVEMENT_CONSTANT * deltaTime;
+    if(ball.state[MOVEMENT_VERTICAL] == DOWN) ball.posY = ball.posY + BALL_MOVEMENT_CONSTANT * deltaTime;
 }
 
 void Game::RenderFrames()
@@ -83,7 +88,7 @@ void Game::RenderFrames()
 void Game::InitActors()
 {
     player = Actor { 
-        0 ,
+        0,
         WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 2,
         PLAYER_WIDTH,
         PLAYER_HEIGHT
@@ -118,4 +123,11 @@ void Game::RenderActors()
 void Game::RenderUI()
 {
 
+}
+
+void Game::InitAI()
+{
+    artificialIntelligence = new AI();
+    artificialIntelligence->InitBallMovement(ball);
+    artificialIntelligence->MoveBall(ball);
 }

@@ -3,5 +3,5 @@
 
 struct Actor {
     float posX, posY, sizeX, sizeY;
-    MoveState state = STOP;
+    MoveState state[2] = { STOP, STOP };
 };

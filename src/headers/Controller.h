@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "Actor.h"
+#include "Constants.h"
 
 class Controller {
 public:
