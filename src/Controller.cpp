@@ -1,4 +1,4 @@
-#include "headers/Libs.h"
+#include "headers/Controller.h"
 
 void Controller::QuitIfNeeded(SDL_Event& event, bool& bIsRunning) 
 {
@@ -12,20 +12,10 @@ void Controller::QuitIfNeeded(SDL_Event& event, bool& bIsRunning)
     }
 }
 
-void Controller::MovePlayerPaddle() 
+void Controller::MoveActor(Actor& actor) 
 {
     SDL_PumpEvents();
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    if(keyState[SDL_SCANCODE_UP]) { MovePlayerUp(); };
-    if(keyState[SDL_SCANCODE_DOWN]) { MovePlayerDown(); };
-}
-
-void Controller::MovePlayerUp() 
-{
-    fprintf(stderr, "UP");
-}
-
-void Controller::MovePlayerDown() 
-{
-    fprintf(stderr, "DOWN");
+    if(keyState[SDL_SCANCODE_UP]) actor.state = UP;
+    if(keyState[SDL_SCANCODE_DOWN]) actor.state = DOWN;
 }

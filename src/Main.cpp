@@ -1,13 +1,13 @@
-#include "headers/Libs.h"
+#include "headers/Game.h"
 
 int main()
 {
-    Engine* engine = new Engine();
-    while(engine->IsRunning()) {
-        engine->ProcessInput();
-        engine->UpddateStates();
-        engine->RenderFrames();
+    Game* g = new Game();
+    while(g->IsRunning()) {
+        g->ProcessInput();
+        g->UpddateStates();
+        g->RenderFrames();
     }
-    engine->~Engine();
+    g->~Game();
     return EXIT_SUCCESS;
 }

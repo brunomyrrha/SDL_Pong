@@ -1,8 +1,13 @@
-class Engine
+#pragma once
+#include <SDL2/SDL.h>
+#include "Constants.h"
+#include "Actor.h"
+
+class Game
 {
 public:
-    Engine();
-    ~Engine();
+    Game();
+    ~Game();
     void ProcessInput();
     void UpddateStates();
     void RenderFrames();
@@ -15,4 +20,8 @@ private:
     SDL_Window *window;
     int lastTimeToFrame;
     int deltaTime;
+    Actor player, ball, enemy;
+    void InitActors();
+    void RenderActors();
+    void RenderUI();
 };

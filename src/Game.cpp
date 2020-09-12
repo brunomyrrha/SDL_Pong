@@ -1,6 +1,7 @@
-#include "headers/Libs.h"
+#include "headers/Game.h"
+#include "headers/Controller.h"
 
-bool Engine::InitSDL()
+bool Game::InitSDL()
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -29,7 +30,7 @@ bool Engine::InitSDL()
     return true;
 }
 
-void Engine::SyncFrameRate()
+void Game::SyncFrameRate()
 {
     int waitTime = FRAME_TARGET_TIME - (SDL_GetTicks() - lastTimeToFrame);
     if (waitTime > 0 && waitTime <= FRAME_TARGET_TIME)
@@ -38,23 +39,24 @@ void Engine::SyncFrameRate()
     };
     deltaTime = (SDL_GetTicks() - lastTimeToFrame) / 1000.0f;
     lastTimeToFrame = SDL_GetTicks();
-};
+}
 
-Engine::Engine()
+Game::Game()
 {
     bIsRunning = InitSDL();
     lastTimeToFrame = 0;
     deltaTime = 0;
+    InitActors();
 }
 
-Engine::~Engine()
+Game::~Game()
 {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void Engine::ProcessInput()
+void Game::ProcessInput()
 {
     SDL_Event event;
     Controller control = Controller();
@@ -62,20 +64,58 @@ void Engine::ProcessInput()
     {
         control.QuitIfNeeded(event, bIsRunning);
     }
-    control.MovePlayerPaddle();
 }
 
-void Engine::UpddateStates()
+void Game::UpddateStates()
 {
     SyncFrameRate();
 }
 
-void Engine::RenderFrames()
+void Game::RenderFrames()
 {
-    Ball b = Ball(renderer);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    b.Render();
+    RenderUI();
+    RenderActors();
     SDL_RenderPresent(renderer);
 }
 
+void Game::InitActors()
+{
+    player = Actor { 
+        0 ,
+        WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 2,
+        PLAYER_WIDTH,
+        PLAYER_HEIGHT
+    };
+
+    enemy = Actor {
+        WINDOW_WIDTH - ENEMY_WIDTH,
+        WINDOW_HEIGHT / 2 - ENEMY_HEIGHT / 2,
+        ENEMY_WIDTH,
+        ENEMY_HEIGHT
+    };
+
+    ball = Actor {
+        WINDOW_WIDTH / 2 - BALL_WIDTH / 2,
+        WINDOW_HEIGHT / 2 - BALL_HEIGHT / 2,
+        BALL_WIDTH,
+        BALL_HEIGHT
+    };
+}
+
+void Game::RenderActors()
+{
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_Rect playerRect = { (int)player.posX, (int)player.posY, (int)player.sizeX, (int)player.sizeY };
+    SDL_RenderFillRect(renderer, &playerRect);
+    SDL_Rect ballRect = { (int)ball.posX, (int)ball.posY, (int)ball.sizeX, (int)ball.sizeY };
+    SDL_RenderFillRect(renderer, &ballRect);
+    SDL_Rect enemyRect = { (int)enemy.posX, (int)enemy.posY, (int)enemy.sizeX, (int)enemy.sizeY };
+    SDL_RenderFillRect(renderer, &enemyRect);    
+}
+
+void Game::RenderUI()
+{
+
+}
