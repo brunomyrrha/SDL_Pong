@@ -16,6 +16,6 @@ void Controller::MoveActor(Actor& actor)
 {
     SDL_PumpEvents();
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    if(keyState[SDL_SCANCODE_UP]) actor.state[MOVEMENT_VERTICAL] = UP;
-    if(keyState[SDL_SCANCODE_DOWN]) actor.state[MOVEMENT_VERTICAL] = DOWN;
+    if(keyState[SDL_SCANCODE_UP] && actor.posY > 0) actor.state[MOVEMENT_VERTICAL] = UP;
+    if(keyState[SDL_SCANCODE_DOWN] && actor.posY < WINDOW_HEIGHT - actor.sizeY) actor.state[MOVEMENT_VERTICAL] = DOWN;
 }

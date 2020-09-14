@@ -1,5 +1,7 @@
 #include "headers/Game.h"
 
+bool reset = false;
+
 bool Game::InitSDL()
 {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -43,10 +45,13 @@ void Game::SyncFrameRate()
 Game::Game()
 {
     bIsRunning = InitSDL();
+    gamePhysic = new Physic();
     lastTimeToFrame = 0;
     deltaTime = 0;
+    playerScore = 0;
+    computerScore = 0;
     InitActors();
-    InitAI();
+    StartNewRound();
 }
 
 Game::~Game()
@@ -60,20 +65,41 @@ void Game::ProcessInput()
 {
     SDL_Event event;
     Controller control = Controller();
+    player.state[MOVEMENT_VERTICAL] = STOP;
     while(SDL_PollEvent(&event))
     {
         control.QuitIfNeeded(event, bIsRunning);
     }
     control.MoveActor(player);
+    gamePhysic->MoveBall(ball);
+    gamePhysic->CalculatePaddleHit(ball, computer, player);
+    ComputeScores();
 }
 
 void Game::UpdateStates()
 {
     SyncFrameRate();
-    if(ball.state[MOVEMENT_HORIZONTAL] == LEFT) ball.posX = ball.posX - BALL_MOVEMENT_CONSTANT * deltaTime;
-    if(ball.state[MOVEMENT_HORIZONTAL] == RIGHT) ball.posX = ball.posX + BALL_MOVEMENT_CONSTANT * deltaTime;
-    if(ball.state[MOVEMENT_VERTICAL] == UP) ball.posY = ball.posY - BALL_MOVEMENT_CONSTANT * deltaTime;
-    if(ball.state[MOVEMENT_VERTICAL] == DOWN) ball.posY = ball.posY + BALL_MOVEMENT_CONSTANT * deltaTime;
+    switch (ball.state[MOVEMENT_HORIZONTAL])
+    {
+        case LEFT: ball.posX -= BALL_MOVEMENT_CONSTANT * deltaTime; break;
+        case RIGHT: ball.posX += BALL_MOVEMENT_CONSTANT * deltaTime; break;
+        default: break;
+    }
+    switch (ball.state[MOVEMENT_VERTICAL])
+    {
+        case UP: ball.posY -= BALL_MOVEMENT_CONSTANT * deltaTime; break;
+        case DOWN: ball.posY += BALL_MOVEMENT_CONSTANT * deltaTime; break;
+        default: break;
+    }
+    switch (player.state[MOVEMENT_VERTICAL])
+    {
+        case UP: player.posY -=  PAD_MOVEMENT_CONSTANT * deltaTime; break;
+        case DOWN: player.posY += PAD_MOVEMENT_CONSTANT * deltaTime; break;
+        default: break;
+    }
+    if (reset) {
+        StartNewRound();
+    }
 }
 
 void Game::RenderFrames()
@@ -94,7 +120,7 @@ void Game::InitActors()
         PLAYER_HEIGHT
     };
 
-    enemy = Actor {
+    computer = Actor {
         WINDOW_WIDTH - ENEMY_WIDTH,
         WINDOW_HEIGHT / 2 - ENEMY_HEIGHT / 2,
         ENEMY_WIDTH,
@@ -116,7 +142,7 @@ void Game::RenderActors()
     SDL_RenderFillRect(renderer, &playerRect);
     SDL_Rect ballRect = { (int)ball.posX, (int)ball.posY, (int)ball.sizeX, (int)ball.sizeY };
     SDL_RenderFillRect(renderer, &ballRect);
-    SDL_Rect enemyRect = { (int)enemy.posX, (int)enemy.posY, (int)enemy.sizeX, (int)enemy.sizeY };
+    SDL_Rect enemyRect = { (int)computer.posX, (int)computer.posY, (int)computer.sizeX, (int)computer.sizeY };
     SDL_RenderFillRect(renderer, &enemyRect);    
 }
 
@@ -125,9 +151,30 @@ void Game::RenderUI()
 
 }
 
-void Game::InitAI()
+void Game::StartNewRound()
 {
-    artificialIntelligence = new AI();
-    artificialIntelligence->InitBallMovement(ball);
-    artificialIntelligence->MoveBall(ball);
+    player.posY = WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 2;
+    computer.posY = WINDOW_HEIGHT / 2 - PLAYER_HEIGHT / 2;
+    ball.posX = WINDOW_WIDTH / 2 - BALL_WIDTH / 2;
+    ball.posY = WINDOW_HEIGHT / 2 - BALL_HEIGHT / 2;
+    gamePhysic->InitBallMovement(ball);
+}
+
+void Game::ComputeScores()
+{
+    int didScore = gamePhysic->DidScore(ball);
+    if (didScore == COMPUTER)
+    {
+        computerScore++;
+        reset = true;
+    }
+    else if (didScore == PLAYER)
+    {
+        playerScore++;
+        reset = true;
+    }
+    else
+    {
+        reset = false;
+    }
 }
