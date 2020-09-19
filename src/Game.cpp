@@ -46,6 +46,7 @@ Game::Game()
 {
     bIsRunning = InitSDL();
     gamePhysic = new Physics();
+    gameAI = new AI();
     lastTimeToFrame = 0;
     deltaTime = 0;
     playerScore = 0;
@@ -56,6 +57,8 @@ Game::Game()
 
 Game::~Game()
 {
+    gamePhysic = nullptr;
+    gameAI = nullptr;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -73,6 +76,7 @@ void Game::ProcessInput()
     control.MoveActor(player);
     gamePhysic->MoveBall(ball);
     gamePhysic->CalculatePaddleHit(ball, computer, player);
+    gameAI->MoveComputerPaddle(ball, computer);
     ComputeScores();
 }
 
@@ -95,6 +99,12 @@ void Game::UpdateStates()
     {
         case UP: player.posY -=  PAD_MOVEMENT_CONSTANT * deltaTime; break;
         case DOWN: player.posY += PAD_MOVEMENT_CONSTANT * deltaTime; break;
+        default: break;
+    }
+    switch (computer.state[MOVEMENT_VERTICAL])
+    {
+        case UP: computer.posY -= PAD_MOVEMENT_CONSTANT * deltaTime; break;
+        case DOWN: computer.posY += PAD_MOVEMENT_CONSTANT * deltaTime;break;
         default: break;
     }
     if (reset) {
@@ -176,5 +186,12 @@ void Game::ComputeScores()
     else
     {
         reset = false;
+    }
+    //DEBUG GAME STATE
+    LOG(playerScore);
+    LOG(computerScore);
+    if (playerScore + computerScore > 5)
+    {
+        bIsRunning = false;
     }
 }

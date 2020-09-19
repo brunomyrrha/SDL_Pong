@@ -4,6 +4,7 @@
 #include "Actor.h"
 #include "Physics.h"
 #include "Controller.h"
+#include "AI.h"
 
 class Game {
 public:
@@ -16,6 +17,7 @@ public:
 private:
     Actor player, ball, computer;
     Physics* gamePhysic;
+    AI* gameAI;
     SDL_Renderer* renderer;
     SDL_Window* window;
     int lastTimeToFrame;
