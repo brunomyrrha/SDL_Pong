@@ -5,7 +5,7 @@
 #include <ctime>
 #include <iostream>
 
-class Physic
+class Physics
 {
 public:
     void MoveBall(Actor& a);

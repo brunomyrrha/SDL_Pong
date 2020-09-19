@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include "Constants.h"
 #include "Actor.h"
-#include "Physic.h"
+#include "Physics.h"
 #include "Controller.h"
 
 class Game {
@@ -15,7 +15,7 @@ public:
     bool IsRunning() { return bIsRunning; };
 private:
     Actor player, ball, computer;
-    Physic* gamePhysic;
+    Physics* gamePhysic;
     SDL_Renderer* renderer;
     SDL_Window* window;
     int lastTimeToFrame;

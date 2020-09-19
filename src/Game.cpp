@@ -45,7 +45,7 @@ void Game::SyncFrameRate()
 Game::Game()
 {
     bIsRunning = InitSDL();
-    gamePhysic = new Physic();
+    gamePhysic = new Physics();
     lastTimeToFrame = 0;
     deltaTime = 0;
     playerScore = 0;
