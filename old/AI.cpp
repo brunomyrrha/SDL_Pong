@@ -1,4 +1,4 @@
-#include "headers/AI.h"
+#include "AI.h"
 
 void AI::MoveComputerPaddle(Actor& ball, Actor& computer)
 {

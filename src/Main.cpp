@@ -1,13 +1,12 @@
-#include "headers/Game.h"
+#include "Game.h"
 
-int main()
-{
+int main() {
     Game* g = new Game();
-    while(g->IsRunning()) {
-        g->ProcessInput();
-        g->UpdateStates();
-        g->RenderFrames();
+    while (g->IsRunning())
+    {
+        g->Input();
+        g->Process();
+        g->Render();
     }
-    g->~Game();
-    return EXIT_SUCCESS;
+    return 0;
 }

@@ -1,21 +1,28 @@
-#include "headers/Controller.h"
+#include "Controller.h"
+#include <SDL2/SDL_events.h>
 
-void Controller::QuitIfNeeded(SDL_Event& event, bool& bIsRunning) 
+Command Controller::Press() 
 {
-    switch(event.type) {
-        case SDL_QUIT:
-            bIsRunning = false;
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE) bIsRunning = false;
-            break;
+    SDL_Event event;
+    while(SDL_PollEvent(&event))
+    {
+        switch(event.type)
+        {
+            case SDL_QUIT: return cEXIT;
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_ESCAPE) return cEXIT;
+        }
     }
+    return cNONE;
 }
 
-void Controller::MoveActor(Actor& actor) 
+Command Controller::Hold()
 {
     SDL_PumpEvents();
     const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    if(keyState[SDL_SCANCODE_UP] && actor.posY > 0) actor.state[MOVEMENT_VERTICAL] = UP;
-    if(keyState[SDL_SCANCODE_DOWN] && actor.posY < WINDOW_HEIGHT - actor.sizeY) actor.state[MOVEMENT_VERTICAL] = DOWN;
+    if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W]) return cUP;
+    if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S]) return cDOWN;
+    if (keyState[SDL_SCANCODE_LEFT] || keyState[SDL_SCANCODE_A]) return cLEFT;
+    if (keyState[SDL_SCANCODE_RIGHT] || keyState[SDL_SCANCODE_D]) return cRIGHT;
+    return cNONE;
 }
